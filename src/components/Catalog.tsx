@@ -6,8 +6,6 @@ import { Button } from "./Button"
 
 import { useFilmContext } from "../context/FilmContext"
 
-import * as icon from "../assets/icon"
-
 interface Filter {
   watched: boolean,
   favorite: boolean,
@@ -73,35 +71,38 @@ export const Catalog = () => {
       <div className="flex flex-wrap gap-2 items-center mt-6">
         <div className="text-sm font-medium mr-2">Filters</div>
 
-        <button
+        <Button
+          variant={filters.watched ? "contained" : "outlined"}
+          color="bg-green-600"
           onClick={() => setFilters(prev => ({
             ...prev,
             watched: !prev.watched
           }))}
         >
-          <icon.Eye />
           Watched
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant={filters.favorite ? "contained" : "outlined"}
+          color="bg-red-600"
           onClick={() => setFilters(prev => ({
             ...prev,
             favorite: !prev.favorite
           }))}
         >
-          <icon.Heart />
           Favorites
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant={filters.hasNote ? "contained" : "outlined"}
+          color="bg-blue-600"
           onClick={() => setFilters(prev => ({
             ...prev,
             hasNote: !prev.hasNote
           }))}
         >
-          <icon.Note />
           With Notes
-        </button>
+        </Button>
       </div>
 
       {(filters.watched || filters.favorite || filters.hasNote) && (
