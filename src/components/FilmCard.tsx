@@ -144,7 +144,7 @@ export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
         {note.description !== "" && (
           <div className="mt-3 p-2 bg-blue-50 rounded-md">
             <div className="flex items-center mb-1">
-              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+              <span className="text-xs font-medium text-blue-600">
                 Your Notes
               </span>
             </div>
