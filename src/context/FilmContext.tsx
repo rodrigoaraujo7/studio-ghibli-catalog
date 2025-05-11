@@ -48,8 +48,21 @@ export const FilmProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchFilms()
-  }, [])
+    const storedFilms = localStorage.getItem("films");
+
+    if (storedFilms) {
+      setFilms(JSON.parse(storedFilms));
+      setLoading(false);
+    } else {
+      fetchFilms();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (films.length > 0) {
+      localStorage.setItem("films", JSON.stringify(films));
+    }
+  }, [films]);
 
   return (
     <FilmContext.Provider value={{
