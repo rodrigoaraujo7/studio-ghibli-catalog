@@ -6,14 +6,34 @@ import * as icon from '../assets/icon'
 import { Button } from "./Button"
 
 type FilmProps = {
-  film: FilmType
+  film: FilmType;
+  query: string;
+  includeSynopsis: boolean
 }
 
-export const FilmCard = ({ film }: FilmProps) => {
+export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
   const [readMore, setReadMode] = useState<boolean>(false)
   const [watched, setWatched] = useState<boolean>(false)
   const [favorite, setFavorite] = useState<boolean>(false)
   const [note, setNote] = useState<boolean>(false)
+
+
+  const highlightMatch = (text: string, query: string) => {
+    if (!query || !includeSynopsis) return text
+
+    const regex = new RegExp(`(${query})`, "gi")
+    const parts = text.split(regex)
+
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <mark key={i} className="bg-yellow-300 text-black rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    )
+  }
 
   return (
     <div
@@ -33,7 +53,7 @@ export const FilmCard = ({ film }: FilmProps) => {
 
       <div className="flex-grow p-4">
         <h2 className="text-lg font-bold mb-1 line-clamp-1">
-          {film.title}
+          {highlightMatch(film.title, query)}
         </h2>
 
         <div className="text-sm text-gray-500 mb-2">
@@ -56,7 +76,7 @@ export const FilmCard = ({ film }: FilmProps) => {
 
         <div className="mb-2">
           <p className={`text-sm ${!readMore && "line-clamp-3"}`}>
-            {film.description}
+            {highlightMatch(film.description, query)}
           </p>
 
           <button onClick={() => setReadMode(!readMore)} className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors outline-none hover:bg-gray-200 cursor-pointer rounded-md h-auto text-xs text-gray-500 hover:text-gray-700 mt-">
