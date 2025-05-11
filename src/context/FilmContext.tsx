@@ -8,6 +8,7 @@ interface FilmContextProps {
   films: Film[],
   setFilms: React.Dispatch<React.SetStateAction<Film[]>>,
   loading: boolean,
+  handleUpdateFilm: (id: string, updatedData: Partial<Film>) => void
 }
 
 const FilmContext = createContext<FilmContextProps | undefined>(undefined)
@@ -18,14 +19,33 @@ export const FilmProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchFilms = async () => {
     try {
-      const response = await api.get("/films");
-      setFilms(response.data);
+      const response = await api.get<Film[]>("/films");
+
+      const responseFilmes = response.data.map(film => ({
+        ...film,
+        watched: false,
+        favorite: false,
+        note: {
+          rating: 0,
+          description: ""
+        }
+      }));
+
+      setFilms(responseFilmes);
     } catch (err) {
       console.log("Erro ao buscar filmes: " + err)
     } finally {
       setLoading(false)
     }
   }
+
+  const handleUpdateFilm = (id: string, updatedData: Partial<Film>) => {
+    setFilms(prev =>
+      prev.map(film =>
+        film.id === id ? { ...film, ...updatedData } : film
+      )
+    );
+  };
 
   useEffect(() => {
     fetchFilms()
@@ -36,6 +56,7 @@ export const FilmProvider = ({ children }: { children: ReactNode }) => {
       films,
       setFilms,
       loading,
+      handleUpdateFilm
     }}>
       {children}
     </FilmContext.Provider>

@@ -16,15 +16,15 @@ export const Catalog = () => {
     return films.filter((film) => {
       const query = searchInputValue.toLowerCase()
       const titleMatch = film.title.toLowerCase().includes(query)
-      const synopsisMatch = film.description?.toLowerCase().includes(query) // evite erro se não existir
+      const synopsisMatch = film.description?.toLowerCase().includes(query)
 
       return includeSynopsis ? (titleMatch || synopsisMatch) : titleMatch
-    }
-    )
+    })
   }, [films, searchInputValue, includeSynopsis])
 
   const clearFilter = () => {
     setSearchInputValue("")
+    setIncludeSynopsis(false)
   }
 
   return (

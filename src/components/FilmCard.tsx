@@ -1,11 +1,14 @@
 import { useState } from "react"
 
-import type { Film as FilmType } from "../types/Film"
-
-import * as icon from '../assets/icon'
 import { Button } from "./Button"
 import { BlurContent } from "./BlurContent"
 import { FormCard } from "./FormCard"
+
+import { useFilmContext } from "../context/FilmContext"
+
+import type { Film as FilmType } from "../types/Film"
+
+import * as icon from '../assets/icon'
 
 type FilmProps = {
   film: FilmType;
@@ -14,6 +17,7 @@ type FilmProps = {
 }
 
 type NoteModalProps = {
+  filmId: FilmType["id"];
   filmTitle: FilmType["title"];
   note: Note,
   setNote: React.Dispatch<React.SetStateAction<Note>>,
@@ -26,11 +30,30 @@ interface Note {
 }
 
 export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
+  const { handleUpdateFilm } = useFilmContext()
+
   const [readMore, setReadMode] = useState<boolean>(false)
-  const [watched, setWatched] = useState<boolean>(false)
-  const [favorite, setFavorite] = useState<boolean>(false)
   const [noteModal, setNoteModal] = useState<boolean>(false)
-  const [note, setNote] = useState<Note>({ rating: 0, description: "" })
+
+  const [watched, setWatched] = useState<boolean>(film.watched);
+  const [favorite, setFavorite] = useState<boolean>(film.favorite);
+  const [note, setNote] = useState<Note>(film.note);
+
+  const toggleWatched = () => {
+    setWatched(prev => {
+      const newVal = !prev;
+      handleUpdateFilm(film.id, { watched: newVal });
+      return newVal;
+    });
+  };
+
+  const toggleFavorite = () => {
+    setFavorite(prev => {
+      const newVal = !prev;
+      handleUpdateFilm(film.id, { favorite: newVal });
+      return newVal;
+    });
+  };
 
   const highlightMatch = (text: string, query: string) => {
     if (!query || !includeSynopsis) return text
@@ -136,7 +159,7 @@ export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
         <Button
           variant={watched ? "contained" : "outlined"}
           className="w-full"
-          onClick={() => setWatched(!watched)}
+          onClick={toggleWatched}
         >
           <icon.Eye style={{ stroke: watched ? "#fff" : "#000" }} /> {watched ? "Watched" : "Mark Watched"}
         </Button>
@@ -145,7 +168,7 @@ export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
           variant={favorite ? "contained" : "outlined"}
           color="bg-red-500"
           className="w-full"
-          onClick={() => setFavorite(!favorite)}
+          onClick={toggleFavorite}
         >
           <icon.Heart style={{ stroke: favorite ? "#fff" : "#000" }} /> {favorite ? "Favorite" : "Add Favorite"}
         </Button>
@@ -161,6 +184,7 @@ export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
 
       {noteModal && (
         <NoteModal
+          filmId={film.id}
           filmTitle={film.title}
           note={note}
           setNote={setNote}
@@ -171,15 +195,22 @@ export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
   )
 }
 
-const NoteModal = ({ filmTitle, note, setNote, setNoteModal }: NoteModalProps) => {
+const NoteModal = ({ filmId, filmTitle, note, setNote, setNoteModal }: NoteModalProps) => {
+  const { handleUpdateFilm } = useFilmContext()
+
   const [rating, setRating] = useState<number>(note.rating)
   const [description, setDescription] = useState<string>(note.description)
 
   const handleSaveNote = () => {
-    setNote({
-      rating,
-      description
-    })
+    if (description === "") return
+
+    setNote(() => {
+      const newVal = {
+        rating, description
+      };
+      handleUpdateFilm(filmId, { note: { rating, description } });
+      return newVal;
+    });
 
     setNoteModal(false)
   }
@@ -222,6 +253,12 @@ const NoteModal = ({ filmTitle, note, setNote, setNoteModal }: NoteModalProps) =
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
+
+            {description === "" && (
+              <p className="text-xs text-red-500">
+                Notes cannot be empty
+              </p>
+            )}
           </div>
 
           <div className="flex justify-end gap-2">
