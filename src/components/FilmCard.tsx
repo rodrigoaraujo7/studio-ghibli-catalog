@@ -82,13 +82,24 @@ export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
           </span>
 
           <div className="ml-auto flex items-center">
-            <span className="text-xs text-gray-400 italic">
-              Not rated
-            </span>
+            {note.rating === 0 ? (
+              <span className="text-xs text-gray-400 italic">
+                Not rated
+              </span>
+            ) : (
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <icon.Star
+                    className={`w-3 h-3 transition-colors ${note.rating >= star ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
+                      }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="mb-2">
+        <div className="mb-3">
           <p className={`text-sm ${!readMore && "line-clamp-3"}`}>
             {highlightMatch(film.description, query)}
           </p>
@@ -106,7 +117,20 @@ export const FilmCard = ({ film, query, includeSynopsis }: FilmProps) => {
             <span className="font-medium">Producer: </span> {film.producer}
           </p>
         </div>
+
+        {note.description !== "" && (
+          <div className="mt-3 p-2 bg-blue-50 rounded-md">
+            <div className="flex items-center mb-1">
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                Your Notes
+              </span>
+            </div>
+
+            <p className="text-xs text-gray-600 line-clamp-2">{note.description}</p>
+          </div>
+        )}
       </div>
+
 
       <div className="items-center p-4 pt-0 flex flex-wrap gap-2">
         <Button
