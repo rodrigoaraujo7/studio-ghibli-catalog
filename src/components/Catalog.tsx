@@ -58,7 +58,6 @@ export const Catalog = () => {
           <p className="text-lg text-gray-500">No movies found matching "{searchInputValue}"</p>
           <Button
             variant="outlined"
-            style={{ width: "fit-content" }}
             onClick={clearFilter}
           >
             Clear All Filters
