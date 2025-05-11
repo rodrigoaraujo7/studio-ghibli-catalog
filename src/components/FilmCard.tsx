@@ -1,12 +1,20 @@
+import { useState } from "react"
+
 import type { Film as FilmType } from "../types/Film"
 
 import * as icon from '../assets/icon'
+import { Button } from "./Button"
 
 type FilmProps = {
   film: FilmType
 }
 
 export const FilmCard = ({ film }: FilmProps) => {
+  const [readMore, setReadMode] = useState<boolean>(false)
+  const [watched, setWatched] = useState<boolean>(false)
+  const [favorite, setFavorite] = useState<boolean>(false)
+  const [note, setNote] = useState<boolean>(false)
+
   return (
     <div
       className="rounded-lg border bg-card border-gray-200 text-card-foreground shadow-sm overflow-hidden h-full flex flex-col transition-all duration-200 hover:shadow-lg"
@@ -47,11 +55,13 @@ export const FilmCard = ({ film }: FilmProps) => {
         </div>
 
         <div className="mb-2">
-          <p className="text-sm line-clamp-3">
+          <p className={`text-sm ${!readMore && "line-clamp-3"}`}>
             {film.description}
           </p>
 
-          <button>Read more</button>
+          <button onClick={() => setReadMode(!readMore)} className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors outline-none hover:bg-gray-200 cursor-pointer rounded-md h-auto text-xs text-gray-500 hover:text-gray-700 mt-">
+            {!readMore ? "Read More" : "Show Less"}
+          </button>
         </div>
 
         <div className="text-xs text-gray-500">
@@ -62,6 +72,27 @@ export const FilmCard = ({ film }: FilmProps) => {
             <span className="font-medium">Producer: </span> {film.producer}
           </p>
         </div>
+      </div>
+
+      <div className="items-center p-4 pt-0 flex flex-wrap gap-2">
+        <Button
+          variant={watched ? "contained" : "outlined"}
+          onClick={() => setWatched(!watched)}
+        >
+          <icon.Eye style={{ stroke: watched ? "#fff" : "#000" }} /> {watched ? "Watched" : "Mark Watched"}
+        </Button>
+
+        <Button
+          variant={favorite ? "contained" : "outlined"}
+          color="bg-red-500"
+          onClick={() => setFavorite(!favorite)}
+        >
+          <icon.Heart style={{ stroke: favorite ? "#fff" : "#000" }} /> {favorite ? "Favorite" : "Add Favorite"}
+        </Button>
+
+        <Button variant="outlined">
+          <icon.Note /> {note ? "Edit Notes" : "Add Notes"}
+        </Button>
       </div>
     </div>
   )
