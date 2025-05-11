@@ -6,9 +6,20 @@ import { Button } from "./Button"
 
 import { useFilmContext } from "../context/FilmContext"
 
+import * as icon from "../assets/icon"
+
+interface Filter {
+  watched: boolean,
+  favorite: boolean,
+  hasNote: boolean
+}
+
 export const Catalog = () => {
   const [searchInputValue, setSearchInputValue] = useState<string>("")
   const [includeSynopsis, setIncludeSynopsis] = useState<boolean>(false)
+  const [filters, setFilters] = useState<Filter>({
+    watched: false, favorite: false, hasNote: false
+  })
 
   const { films } = useFilmContext()
 
@@ -17,10 +28,16 @@ export const Catalog = () => {
       const query = searchInputValue.toLowerCase()
       const titleMatch = film.title.toLowerCase().includes(query)
       const synopsisMatch = film.description?.toLowerCase().includes(query)
+      const matchesText = includeSynopsis ? (titleMatch || synopsisMatch) : titleMatch
 
-      return includeSynopsis ? (titleMatch || synopsisMatch) : titleMatch
+      const matchesWatched = filters.watched ? film.watched === true : true
+      const matchesFavorite = filters.favorite ? film.favorite === true : true
+      const matchesHasNote = filters.hasNote ? film.note.description : true
+
+      return matchesText && matchesWatched && matchesFavorite && matchesHasNote
     })
-  }, [films, searchInputValue, includeSynopsis])
+  }, [films, searchInputValue, includeSynopsis, filters])
+
 
   const clearFilter = () => {
     setSearchInputValue("")
@@ -35,7 +52,7 @@ export const Catalog = () => {
         onChange={(e) => setSearchInputValue(e.target.value)}
       />
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4 mt-6">
         <div className="flex items-center space-x-2">
           <input
             id="include-synopsis"
@@ -52,6 +69,98 @@ export const Catalog = () => {
           </label>
         </div>
       </div>
+
+      <div className="flex flex-wrap gap-2 items-center mt-6">
+        <div className="text-sm font-medium mr-2">Filters</div>
+
+        <button
+          onClick={() => setFilters(prev => ({
+            ...prev,
+            watched: !prev.watched
+          }))}
+        >
+          <icon.Eye />
+          Watched
+        </button>
+
+        <button
+          onClick={() => setFilters(prev => ({
+            ...prev,
+            favorite: !prev.favorite
+          }))}
+        >
+          <icon.Heart />
+          Favorites
+        </button>
+
+        <button
+          onClick={() => setFilters(prev => ({
+            ...prev,
+            hasNote: !prev.hasNote
+          }))}
+        >
+          <icon.Note />
+          With Notes
+        </button>
+      </div>
+
+      {(filters.watched || filters.favorite || filters.hasNote) && (
+        <div className="flex items-center gap-2 mt-6">
+          <span className="text-sm text-gray-500">
+            Active filters:
+          </span>
+
+          <div className="flex flex-wrap gap-2">
+            {filters.watched && (
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-50 text-green-700 border-green-200">
+                Watched
+
+                <button
+                  className="ml-1 cursor-pointer hover:text-green-900"
+                  onClick={() => setFilters(prev => ({
+                    ...prev,
+                    watched: !prev.watched
+                  }))}
+                >
+                  X
+                </button>
+              </div>
+            )}
+
+            {filters.favorite && (
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-red-70 text-red-700 border-red-200">
+                Favorites
+
+                <button
+                  className="ml-1 cursor-pointer hover:text-red-900"
+                  onClick={() => setFilters(prev => ({
+                    ...prev,
+                    favorite: !prev.favorite
+                  }))}
+                >
+                  X
+                </button>
+              </div>
+            )}
+
+            {filters.hasNote && (
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-red-70 text-blue-700 border-blue-200">
+                With Notes
+
+                <button
+                  className="ml-1 cursor-pointer hover:text-blue-900"
+                  onClick={() => setFilters(prev => ({
+                    ...prev,
+                    hasNote: !prev.hasNote
+                  }))}
+                >
+                  X
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {filteredFilms.length === 0 ? (
         <div className="flex flex-col justify-center items-center gap-4 py-10">
